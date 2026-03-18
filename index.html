@@ -1,327 +1,291 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Smart Cold Storage Dashboard</title>
+  <title>Smart Cold Storage Dashboard</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.5s;
-        }
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.5s;
+    }
 
-        h1 {
-            margin: 20px;
-        }
+    h1 { margin: 20px; }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
-        /* CARD BASE */
-        .card {
-            position: relative;
-            overflow: hidden;
-            padding: 20px;
-            margin: 10px;
-            border-radius: 15px;
-            width: 220px;
-            background: #1e293b;
-            box-shadow: 0 0 15px #000;
-            transition: transform 0.3s;
-        }
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+      margin: 10px;
+      border-radius: 15px;
+      width: 220px;
+      background: #1e293b;
+      box-shadow: 0 0 15px #000;
+      transition: transform 0.3s;
+    }
 
-        .card:hover {
-            transform: scale(1.05);
-        }
+    .card:hover { transform: scale(1.05); }
 
-        .value {
-            font-size: 28px;
-            margin-top: 10px;
-        }
+    .value {
+      font-size: 28px;
+      margin-top: 10px;
+    }
 
-        /* 🌡 HEAT */
-        .temp::before {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.3), transparent);
-            animation: heatMove 3s infinite linear;
-        }
+    /* TEMPERATURE */
+    .temp::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,0,0,0.3), transparent);
+      animation: heatMove 3s infinite linear;
+    }
 
-        @keyframes heatMove {
-            0% {
-                transform: translate(-20%, -20%);
-            }
+    @keyframes heatMove {
+      0% { transform: translate(-20%, -20%); }
+      50% { transform: translate(20%, 20%); }
+      100% { transform: translate(-20%, -20%); }
+    }
 
-            50% {
-                transform: translate(20%, 20%);
-            }
+    /* HUMIDITY */
+    .humidity::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(transparent, rgba(0,150,255,0.3));
+      animation: wave 2s infinite ease-in-out;
+    }
 
-            100% {
-                transform: translate(-20%, -20%);
-            }
-        }
+    @keyframes wave {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(20px); }
+    }
 
-        /* 💧 HUMIDITY */
-        .humidity::before {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(transparent, rgba(0, 150, 255, 0.3));
-            animation: wave 2s infinite ease-in-out;
-        }
+    /* WEIGHT */
+    .weight::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,0,0.2);
+      animation: pulse 2s infinite;
+    }
 
-        @keyframes wave {
+    @keyframes pulse {
+      0% { opacity: 0.2; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.2; }
+    }
 
-            0%,
-            100% {
-                transform: translateY(0);
-            }
+    .card * {
+      position: relative;
+      z-index: 1;
+    }
 
-            50% {
-                transform: translateY(20px);
-            }
-        }
+    .bottom-container {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
-        /* ⚖ WEIGHT */
-        .weight::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 0, 0.2);
-            animation: pulse 2s infinite;
-        }
+    #gasGauge {
+      width: 250px !important;
+      height: 150px !important;
+      background: white;
+      border-radius: 10px;
+    }
 
-        @keyframes pulse {
-            0% {
-                opacity: 0.2;
-            }
+    #chart {
+      width: 500px !important;
+      height: 250px !important;
+      background: white;
+      border-radius: 10px;
+    }
 
-            50% {
-                opacity: 0.6;
-            }
+    /* ALERT */
+    .alert {
+      background: red !important;
+      animation: flash 0.5s infinite;
+    }
 
-            100% {
-                opacity: 0.2;
-            }
-        }
+    @keyframes flash {
+      0% { background: red; }
+      50% { background: black; }
+      100% { background: red; }
+    }
 
-        .card * {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* BOTTOM */
-        .bottom-container {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        #gasGauge {
-            width: 250px !important;
-            height: 150px !important;
-            background: white;
-            border-radius: 10px;
-        }
-
-        #chart {
-            width: 500px !important;
-            height: 250px !important;
-            background: white;
-            border-radius: 10px;
-        }
-
-        /* 🚨 ALERT FLASH */
-        .alert {
-            background: red !important;
-            animation: flash 0.5s infinite;
-        }
-
-        @keyframes flash {
-            0% {
-                background: red;
-            }
-
-            50% {
-                background: black;
-            }
-
-            100% {
-                background: red;
-            }
-        }
-
-        #alertText {
-            color: yellow;
-            font-size: 24px;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
+    #alertText {
+      color: yellow;
+      font-size: 24px;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
 
-    <h1>❄️ Smart Cold Storage Dashboard</h1>
+<h1>❄️ Smart Cold Storage Dashboard</h1>
 
-    <div class="container">
+<div class="container">
 
-        <div class="card temp">
-            <h3>🌡 DHT11 Temp</h3>
-            <div id="t1" class="value">--</div>
-        </div>
+  <div class="card temp">
+    <h3>🌡 DHT11 Temp</h3>
+    <div id="t1" class="value">--</div>
+  </div>
 
-        <div class="card humidity">
-            <h3>💧 DHT11 Humidity</h3>
-            <div id="h1" class="value">--</div>
-        </div>
+  <div class="card humidity">
+    <h3>💧 DHT11 Humidity</h3>
+    <div id="h1" class="value">--</div>
+  </div>
 
-        <div class="card temp">
-            <h3>🌡 DHT22 Temp</h3>
-            <div id="t2" class="value">--</div>
-        </div>
+  <div class="card temp">
+    <h3>🌡 DHT22 Temp</h3>
+    <div id="t2" class="value">--</div>
+  </div>
 
-        <div class="card humidity">
-            <h3>💧 DHT22 Humidity</h3>
-            <div id="h2" class="value">--</div>
-        </div>
+  <div class="card humidity">
+    <h3>💧 DHT22 Humidity</h3>
+    <div id="h2" class="value">--</div>
+  </div>
 
-        <div class="card weight">
-            <h3>⚖ Weight</h3>
-            <div id="weight" class="value">--</div>
-        </div>
+  <div class="card weight">
+    <h3>⚖ Weight</h3>
+    <div id="weight" class="value">--</div>
+  </div>
 
-    </div>
+</div>
 
-    <!-- ALERT TEXT -->
-    <div id="alertText">⚠️ DANGER: GAS LEVEL HIGH!</div>
+<div id="alertText">⚠️ DANGER: GAS LEVEL HIGH!</div>
 
-    <!-- BOTTOM -->
-    <div class="bottom-container">
+<div class="bottom-container">
 
-        <div>
-            <canvas id="gasGauge"></canvas>
-            <h3 id="gasValue">Gas: --</h3>
-        </div>
+  <div>
+    <canvas id="gasGauge"></canvas>
+    <h3 id="gasValue">Gas: --</h3>
+  </div>
 
-        <canvas id="chart"></canvas>
+  <canvas id="chart"></canvas>
 
-    </div>
+</div>
 
-    <script>
-        const channelID = "3296262";
-        const readAPI = "F5G0OFNP2RAH4QJH";
+<script>
+const channelID = "3296262";
+const readAPI = "YOUR_READ_API_KEY";
 
-        /* GAUGE */
-        let gasGauge = new Chart(document.getElementById("gasGauge"), {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [0, 500],
-                    backgroundColor: ['orange', '#eee']
-                }]
-            },
-            options: {
-                rotation: -90,
-                circumference: 180,
-                plugins: { legend: { display: false } }
-            }
-        });
+/* GAS GAUGE */
+let gasGauge = new Chart(document.getElementById("gasGauge"), {
+  type: 'doughnut',
+  data: {
+    datasets: [{
+      data: [0, 500],
+      backgroundColor: ['orange', '#eee']
+    }]
+  },
+  options: {
+    rotation: -90,
+    circumference: 180,
+    plugins: { legend: { display: false } }
+  }
+});
 
-        /* GRAPH */
-        let chart = new Chart(document.getElementById("chart"), {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [
-                    { label: 'DHT11 Temp', data: [], borderColor: 'red' },
-                    { label: 'DHT11 Humidity', data: [], borderColor: 'blue' },
-                    { label: 'DHT22 Temp', data: [], borderColor: 'green' },
-                    { label: 'DHT22 Humidity', data: [], borderColor: 'orange' }
-                ]
-            }
-        });
+/* GRAPH */
+let chart = new Chart(document.getElementById("chart"), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      { label: 'DHT11 Temp', data: [], borderColor: 'red' },
+      { label: 'DHT11 Humidity', data: [], borderColor: 'blue' },
+      { label: 'DHT22 Temp', data: [], borderColor: 'green' },
+      { label: 'DHT22 Humidity', data: [], borderColor: 'orange' }
+    ]
+  }
+});
 
-        /* ANIMATION */
-        function animateValue(id, value, unit) {
-            let el = document.getElementById(id);
-            el.innerText = value + unit;
-            el.style.transform = "scale(1.2)";
-            setTimeout(() => el.style.transform = "scale(1)", 300);
-        }
+/* ANIMATION */
+function animateValue(id, value, unit) {
+  let el = document.getElementById(id);
+  el.innerText = value + unit;
+  el.style.transform = "scale(1.2)";
+  setTimeout(() => el.style.transform = "scale(1)", 300);
+}
 
-        /* FETCH */
-        async function getData() {
+/* FETCH DATA */
+async function getData() {
 
-            const res = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds.json?results=10&api_key=${readAPI}`);
-            const data = await res.json();
+  const res = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds.json?results=10&api_key=${readAPI}`);
+  const data = await res.json();
 
-            let feeds = data.feeds;
+  let feeds = data.feeds;
 
-            let labels = [];
-            let t1 = [], h1 = [], t2 = [], h2 = [];
+  let labels = [];
+  let t1=[], h1=[], t2=[], h2=[];
 
-            feeds.forEach(feed => {
-                labels.push(feed.created_at.substring(11, 19));
-                t1.push(feed.field1);
-                h1.push(feed.field2);
-                t2.push(feed.field3);
-                h2.push(feed.field4);
-            });
+  /* ✅ FIXED TIME FORMAT + LIMIT DATA */
+  feeds.slice(-8).forEach(feed => {
+    let time = new Date(feed.created_at);
+    let formattedTime = time.toLocaleTimeString();
 
-            chart.data.labels = labels;
-            chart.data.datasets[0].data = t1;
-            chart.data.datasets[1].data = h1;
-            chart.data.datasets[2].data = t2;
-            chart.data.datasets[3].data = h2;
-            chart.update();
+    labels.push(formattedTime);
 
-            let last = feeds[feeds.length - 1];
+    t1.push(feed.field1);
+    h1.push(feed.field2);
+    t2.push(feed.field3);
+    h2.push(feed.field4);
+  });
 
-            animateValue("t1", last.field1, " °C");
-            animateValue("h1", last.field2, " %");
-            animateValue("t2", last.field3, " °C");
-            animateValue("h2", last.field4, " %");
-            animateValue("weight", last.field5, " kg");
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = t1;
+  chart.data.datasets[1].data = h1;
+  chart.data.datasets[2].data = t2;
+  chart.data.datasets[3].data = h2;
+  chart.update();
 
-            let gas = parseInt(last.field6);
+  let last = feeds[feeds.length - 1];
 
-            gasGauge.data.datasets[0].data = [gas, 500 - gas];
-            gasGauge.update();
+  animateValue("t1", last.field1, " °C");
+  animateValue("h1", last.field2, " %");
+  animateValue("t2", last.field3, " °C");
+  animateValue("h2", last.field4, " %");
+  animateValue("weight", last.field5, " kg");
 
-            document.getElementById("gasValue").innerText = "Gas Level: " + gas;
+  let gas = parseInt(last.field6);
 
-            /* 🚨 ALERT CONDITION */
-            if (gas > 300) {
-                document.body.classList.add("alert");
-                document.getElementById("alertText").style.display = "block";
-            } else {
-                document.body.classList.remove("alert");
-                document.getElementById("alertText").style.display = "none";
-            }
-        }
+  gasGauge.data.datasets[0].data = [gas, 500-gas];
+  gasGauge.update();
 
-        setInterval(getData, 5000);
-        getData();
-    </script>
+  document.getElementById("gasValue").innerText = "Gas Level: " + gas;
+
+  /* 🚨 ALERT */
+  if(gas > 300){
+    document.body.classList.add("alert");
+    document.getElementById("alertText").style.display = "block";
+  } else {
+    document.body.classList.remove("alert");
+    document.getElementById("alertText").style.display = "none";
+  }
+}
+
+setInterval(getData, 5000);
+getData();
+</script>
 
 </body>
-
 </html>
